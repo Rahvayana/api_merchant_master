@@ -10,22 +10,43 @@ use Tymon\JWTAuth\Facades\JWTAuth;
 class AuthController extends Controller
 {
 
+    public static function generateOTP($length)
+    {
+        $characters = '0123456789';
+        $charactersLength = strlen($characters);
+        $randomString = '';
+        for ($i = 0; $i < $length; $i++) {
+            $randomString .= $characters[rand(0, $charactersLength - 1)];
+        }
+        return $randomString;
+    }
+
     public function phone(Request $request)
     {
         $phone=User::where('phone',$request->phone)->first();
+        $data['phone']=$request->phone;
+        $data['otp']=$this->generateOTP(6);
         
         if(!$phone){
-            return response()->json([
-                'status'=>404,
-                'message'=>'Phone Number Not Found'
-            ]);    
+            //insert data to database
+            $user=new User();
+            $user->phone=$request->phone;
+            $user->otp=$data['otp'];
+            $user->save();
+            
         }else{
-            return response()->json([
-                'data'=>$request->phone,
-                'status'=>200,
-                'message'=>'Phone Number Success Retrive'
-            ]);
+            //if phone exist update otp only
+            $user=new User();
+            $user=User::where('phone',$data['phone'])->first();
+            $user->otp=$data['otp'];
+            $user->save();
         }
+        return response()->json([
+            'data'=>$data,
+            'status'=>200,
+            'message'=>'Phone Number Success Retrive'
+        ]);
+        
     }
 
     public function login (Request $request) {
