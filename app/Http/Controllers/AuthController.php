@@ -13,6 +13,7 @@ class AuthController extends Controller
     public function phone(Request $request)
     {
         $phone=User::where('phone',$request->phone)->first();
+        
         if(!$phone){
             return response()->json([
                 'status'=>404,
