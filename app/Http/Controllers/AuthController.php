@@ -49,6 +49,22 @@ class AuthController extends Controller
         
     }
 
+    public function resendOtp(Request $request)
+    {
+        $user=new User();
+        $data['otp']=$this->generateOTP(6);
+        $data['phone']=$request->phone;
+        $user=User::where('phone',$request->phone)->first();
+        $user->otp=$data['otp'];
+        $user->save();
+        return response()->json([
+            'data'=>$data,
+            'status'=>200,
+            'message'=>'Otp Success Retrive'
+        ]);
+        
+    }
+
     public function login (Request $request) {
         $user = User::where('phone', $request->phone)->where('otp', $request->otp)->first();
         if($user){
